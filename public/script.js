@@ -11,12 +11,13 @@ let userId;
 // Get user media
 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
     localStream = stream;
-    assignVideoSlot(userId, stream); // Assign current user a video slot
-    socket.emit("join-call");
+    socket.emit("join-call"); // First, notify the server
 });
 
 // Assign video slot
 function assignVideoSlot(id, stream) {
+    if (id === userId) return; // Prevent duplicate assignment of self
+    
     for (let video of videoElements) {
         if (!video.srcObject) {
             video.srcObject = stream;
@@ -37,8 +38,16 @@ function removeVideoSlot(id) {
     }
 }
 
+// Set userId when joining
+socket.on("your-id", id => {
+    userId = id;
+    assignVideoSlot(userId, localStream); // Now assign local video
+});
+
 // WebRTC Signaling
 socket.on("user-joined", id => {
+    if (id === userId) return; // Don't create a peer connection for yourself
+
     const peerConnection = new RTCPeerConnection();
     peerConnections[id] = peerConnection;
 
@@ -61,6 +70,8 @@ socket.on("user-joined", id => {
 });
 
 socket.on("offer", async ({ offer, from }) => {
+    if (from === userId) return; // Ignore offers from yourself
+
     const peerConnection = new RTCPeerConnection();
     peerConnections[from] = peerConnection;
 

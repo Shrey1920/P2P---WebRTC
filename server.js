@@ -11,8 +11,8 @@ app.use(express.static("public"));
 let users = {};
 
 io.on("connection", socket => {
-    console.log("New user connected:", socket.id);
-    users[socket.id] = socket.id;
+    socket.emit("your-id", socket.id); // Send userId to client
+
     socket.broadcast.emit("user-joined", socket.id);
 
     socket.on("offer", ({ offer, to }) => {
@@ -28,15 +28,14 @@ io.on("connection", socket => {
     });
 
     socket.on("leave-call", () => {
-        delete users[socket.id];
         io.emit("user-left", socket.id);
         socket.disconnect();
     });
 
     socket.on("disconnect", () => {
-        delete users[socket.id];
         io.emit("user-left", socket.id);
     });
 });
+
 
 server.listen(3000, () => console.log("Server running on port 3000"));
