@@ -1,16 +1,13 @@
 {
-  "name": "new-folder",
+  "name": "p2p-webrtc",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Peer-to-peer video calling using WebRTC",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "express": "^4.21.2",
-    "ws": "^8.18.1"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
   }
 }
