@@ -1,36 +1,42 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
+const socketIo = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = socketIo(server);
 
-// Serve static files from 'public' folder
 app.use(express.static("public"));
 
-io.on("connection", (socket) => {
-    console.log("A user connected:", socket.id);
+let users = {};
 
-    socket.on("offer", (data) => {
-        socket.broadcast.emit("offer", data);
+io.on("connection", socket => {
+    console.log("New user connected:", socket.id);
+    users[socket.id] = socket.id;
+    socket.broadcast.emit("user-joined", socket.id);
+
+    socket.on("offer", ({ offer, to }) => {
+        io.to(to).emit("offer", { offer, from: socket.id });
     });
 
-    socket.on("answer", (data) => {
-        socket.broadcast.emit("answer", data);
+    socket.on("answer", ({ answer, to }) => {
+        io.to(to).emit("answer", { answer, from: socket.id });
     });
 
-    socket.on("candidate", (data) => {
-        socket.broadcast.emit("candidate", data);
+    socket.on("ice-candidate", ({ candidate, to }) => {
+        io.to(to).emit("ice-candidate", { candidate, from: socket.id });
+    });
+
+    socket.on("leave-call", () => {
+        delete users[socket.id];
+        io.emit("user-left", socket.id);
+        socket.disconnect();
     });
 
     socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
+        delete users[socket.id];
+        io.emit("user-left", socket.id);
     });
 });
 
-// Use Render's dynamic port
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-});
+server.listen(3000, () => console.log("Server running on port 3000"));

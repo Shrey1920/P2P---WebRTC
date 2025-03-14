@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Video Call</title>
+    <title>Peer-to-Peer Video Call</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>WebRTC Video Call</h2>
-    <video id="localVideo" autoplay playsinline></video>
-    <video id="remoteVideo" autoplay playsinline></video>
-    <button onclick="startCall()">Start Call</button>
+    <h1>Peer-to-Peer Video Call</h1>
+    <div id="video-container">
+        <video id="video1" autoplay playsinline></video>
+        <video id="video2" autoplay playsinline></video>
+        <video id="video3" autoplay playsinline></video>
+        <video id="video4" autoplay playsinline></video>
+    </div>
+    <button id="leaveCall"></button>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
